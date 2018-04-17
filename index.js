@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-17 21:56:03
+ * @Last Modified time: 2018-04-17 22:00:47
  * A simple implementation of Promise/A+
  */
 // specification
@@ -197,8 +197,10 @@ class Promise {
             if (x._PromiseStatus == 'pending') {
                 // promise2 wait until x is not pending
                 // and trigger promise2 status
-                x.then(function (r) {
-                    promise2._decide('fufilled', r)
+                x.then(function (x) {
+                    promise2._decide('fufilled', x)
+                }, function (r) {
+                    promise2._decide('rejected', r)
                 })
             // 2.3.2.2 如果x是fulfilled状态，将x的值用于fulfill promise
             } else if (x._PromiseStatus == 'fufilled') {
