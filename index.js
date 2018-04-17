@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-17 22:59:39
+ * @Last Modified time: 2018-04-17 23:59:18
  * A simple implementation of Promise/A+
  */
 // specification
@@ -390,6 +390,7 @@ Promise.reject = function (reason) {
         reject(reason)
     })
 }
+
 module.exports = Promise
 
 
