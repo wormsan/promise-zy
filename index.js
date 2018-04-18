@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-18 20:14:21
+ * @Last Modified time: 2018-04-18 20:28:27
  * A simple implementation of Promise/A+
  */
 
@@ -31,7 +31,7 @@ function isThenable (x) {
         } catch (e) {
             return {
                 throwed: true,
-                then: e
+                then: e,
             }
         }
     }
