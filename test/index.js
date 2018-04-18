@@ -2,9 +2,10 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:49:30 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-17 21:35:13
+ * @Last Modified time: 2018-04-18 15:10:27
  */
 const Promise = require('../index.js')
+Promise.dontThrow()
 var promisesAplusTests = require("promises-aplus-tests");
 const adapter = {
     deferred: function() {
