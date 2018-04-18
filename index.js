@@ -69,7 +69,7 @@ class Promise {
                     return __PromiseStatus
                 },
                 set (value) {
-                    // you are doing an unilegal set, please use _decide fn
+                    // you are doing an illegal set, please use _decide fn
                     if (this._decideLock == 'locked') return false
                     // 2.1
                     /*  
