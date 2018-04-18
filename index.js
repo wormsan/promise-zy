@@ -18,8 +18,7 @@ let dontThrow = false
  */
 function isThenable (x) {
     if (typeof x == 'function' || typeof x == 'object' && x != null) {
-        // TODO: 2.3.3.1 将 then 赋为 x.then. [3.5]
-        // 这条没看懂，不知道实现了没
+        //  2.3.3.1 将 then 赋为 x.then. [3.5]
         try {
             let then = x.then
             if (then && typeof then == 'function') {
