@@ -1,6 +1,6 @@
 {
   "name": "promise-zy",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A simple implementation of Promies/A+",
   "main": "index.js",
   "directories": {
