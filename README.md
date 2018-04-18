@@ -12,7 +12,7 @@ A tiny implementation of Promies/A+
 
 ## features
 
-* 100% tested with [promises-aplus-tests](https://github.com/promises-aplus/)
+* 100% tested with [promises-aplus-tests](https://github.com/promises-aplus/promises-tests)
 * support AMD/Commonjs/Web
 * tiny
     * less than 2KB after uglified
@@ -20,7 +20,7 @@ A tiny implementation of Promies/A+
 
 ## 超小Promise/A+实现
 
-* 使用[promises-aplus-tests](https://github.com/promises-aplus/)进行测试，通过率100%
+* 使用[promises-aplus-tests](https://github.com/promises-aplus/promises-tests)进行测试，通过率100%
 * 支持 AMD/Commonjs/Web
 * 超小
     * uglify之后不到6k
