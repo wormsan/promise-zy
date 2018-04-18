@@ -90,7 +90,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-18 16:40:48
+ * @Last Modified time: 2018-04-18 21:20:30
  * A simple implementation of Promise/A+
  */
 
@@ -111,13 +111,22 @@ function isThenable(x) {
         try {
             var then = x.then;
             if (then && typeof then == 'function') {
-                return then;
+                return {
+                    throwed: false,
+                    then: then
+                };
             }
         } catch (e) {
-            return { 'throwed': e };
+            return {
+                throwed: true,
+                then: e
+            };
         }
     }
-    return false;
+    return {
+        throwed: false,
+        then: null
+    };
 }
 /**
  * 报错
@@ -156,7 +165,8 @@ var Promise = function () {
                 set: function set(value) {
                     var _this = this;
 
-                    if (this._decideLock == 'locked') return false; // throw new Error('you are doing an unilegal set, please use _decide fn')
+                    // you are doing an unilegal set, please use _decide fn
+                    if (this._decideLock == 'locked') return false;
                     // 2.1
                     /*  
                         一个Promise必须处在其中之一的状态：pending, fulfilled 或 rejected.
@@ -182,9 +192,9 @@ var Promise = function () {
                         它不能在promise rejected前调用。
                         不能被多次调用。
                     */
+                    // the promise status cannot be set again
                     if (__statusTrigger) {
                         return false;
-                        // throw new Error('the promise status cannot be set again')
                     }
                     if (__PromiseStatus == 'pending' && value != 'pending') {
                         __statusTrigger = true;
@@ -206,10 +216,12 @@ var Promise = function () {
                     return __PromiseValue;
                 },
                 set: function set(value) {
-                    if (this._decideLock == 'locked') return false; //throw new Error('you are doing an unilegal set, please use _decide fn')
+                    // you are doing an unilegal set, please use _decide fn
+                    if (this._decideLock == 'locked') return false;
                     // 2.1
                     if (__valueTrigger) {
-                        return false; //throw new Error('the promise value cannot be set again')
+                        // the promise value cannot be set again
+                        return false;
                     }
                     __valueTrigger = true;
                     __PromiseValue = value;
@@ -231,7 +243,7 @@ var Promise = function () {
         }
     }
     /**
-     * promise的状态和value的变更，必须一起进行\
+     * promise的状态和value的变更，必须一起进行
      * 所以封装decide方法，并且配合一个锁，防止状态和value被decide方法之外的其他方法修改
      * @param {string} status 
      * @param {*} value 
@@ -258,7 +270,6 @@ var Promise = function () {
             // 2.2.6 对于一个promise，它的then方法可以调用多次.
             //  当promise fulfilled后，所有onFulfilled都必须按照其注册顺序执行。
             //  当promise rejected后，所有onRejected都必须按照其注册顺序执行。
-
             while (this._retrivers.length > 0) {
                 var retriver = this._retrivers.shift();
                 try {
@@ -303,12 +314,15 @@ var Promise = function () {
 
     }, {
         key: '_resolve',
-        value: function _resolve(promise2, x, isY) {
+        value: function _resolve(promise2, x) {
             var _this3 = this;
 
-            var then = isThenable(x);
-            if (then.throwed) {
-                throw then.throwed;
+            var _isThenable = isThenable(x),
+                throwed = _isThenable.throwed,
+                then = _isThenable.then;
+
+            if (throwed) {
+                throw then;
             }
             // 2.3.1 如果promise 和 x 指向相同的值, 使用 TypeError做为原因将promise拒绝
             if (promise2 == x) {
@@ -322,9 +336,12 @@ var Promise = function () {
                     // and trigger promise2 status
                     // 为了通过测试用例，各种倒状态
                     x.then(function (x) {
-                        var then = isThenable(x);
-                        if (then.throwed) {
-                            promise2._decide('rejected', then.throwed);
+                        var _isThenable2 = isThenable(x),
+                            throwed = _isThenable2.throwed,
+                            then = _isThenable2.then;
+
+                        if (throwed) {
+                            promise2._decide('rejected', then);
                         } else if (then) {
                             try {
                                 then.call(x, function (y) {
@@ -365,7 +382,7 @@ var Promise = function () {
                         onceTrigger = true;
                         // [[Resolve]] (promise, y)
                         try {
-                            _this3._resolve(promise2, y, 'y');
+                            _this3._resolve(promise2, y);
                         } catch (e) {
                             _this3._reject(promise2, e);
                         }
@@ -533,10 +550,13 @@ Promise.race = function (iterable) {
 // 则该对象作为Promise.resolve方法的返回值返回；否则以该值为成功状态返回promise对象。
 // *fully tested whit the suites in MDN demo
 Promise.resolve = function (x) {
-    var then = isThenable(x);
-    if (then.throwed) {
+    var _isThenable3 = isThenable(x),
+        throwed = _isThenable3.throwed,
+        then = _isThenable3.then;
+
+    if (throwed) {
         return new Promise(function (resolve, reject) {
-            reject(then.throwed);
+            reject(then);
         });
     }
     if (x instanceof Promise) {

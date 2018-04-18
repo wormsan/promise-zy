@@ -1,8 +1,8 @@
 {
   "name": "promise-zy",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple implementation of Promies/A+",
-  "main": "index.js",
+  "main": "dist/promise.js",
   "directories": {
     "test": "test"
   },
@@ -15,7 +15,8 @@
     "url": "git+https://github.com/JALBAA/promise-zy.git"
   },
   "keywords": [
-    "promise"
+    "promise",
+    "promise-aplus"
   ],
   "author": "jalbaa",
   "license": "MIT",
