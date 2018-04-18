@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-18 15:50:32
+ * @Last Modified time: 2018-04-18 16:40:48
  * A simple implementation of Promise/A+
  */
 
@@ -97,14 +97,15 @@ class Promise {
                     }
                     if (__PromiseStatus == 'pending' && value != 'pending') {
                         __statusTrigger = true
-                        __PromiseStatus = value
+						__PromiseStatus = value
+
+						if (this._retrivers.length == 0 && this._PromiseStatus == 'rejected') {
+							if (!dontThrow) {
+								throw uncaughtError(this._PromiseValue)
+							}
+						}
                         setTimeout(() => {
-                            this._onStatusChange(value)
-                            if (this._retrivers.length == 0 && this._PromiseStatus == 'rejected') {
-                                if (!dontThrow) {
-                                    throw uncaughtError(this._PromiseValue)
-                                }
-                            }
+							this._onStatusChange(value)
                         })
                     }
                 },
@@ -133,7 +134,9 @@ class Promise {
         try {
             cb(resolve, reject)
         } catch (e) {
-            throw uncaughtError(e)
+			setTimeout(() => {
+				this._decide('rejected', e)
+			});
         }
     }
     /**
@@ -409,14 +412,26 @@ Promise.race = function (iterable) {
 // 则该对象作为Promise.resolve方法的返回值返回；否则以该值为成功状态返回promise对象。
 // *fully tested whit the suites in MDN demo
 Promise.resolve = function (x) {
+	let then = isThenable(x)
+	if (then.throwed) {
+		return new Promise(function (resolve, reject) {
+			reject(then.throwed)
+		})
+	}
     if (x instanceof Promise) {
         return x
-    } else if (isThenable(x)) {
-        return new Promise(function (resolve) {
-            resolve()
-        }).then(function () {
-            return x
-        })
+    } else if (then) {
+		return new Promise(function (resolve, reject) {
+			try {
+				then.call(x, function (y) {
+					resolve(y)
+				}, function (r) {
+					reject(r)
+				})
+			} catch (e) {
+				reject(e)
+			}
+		}) 
     } else {
         return new Promise(function (resolve, reject) {
             resolve(x)
