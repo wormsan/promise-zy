@@ -7,8 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "babel index.js -d dist",
-    "uglify": "uglifyjs --compress --mangle  --output dist/index.min.js  -- dist/index.js",
+    "uglify": "uglifyjs --compress --mangle  --output dist/promise.min.js  -- dist/promise.js",
     "test": "node test/index.js"
   },
   "repository": {
@@ -25,9 +24,11 @@
   },
   "homepage": "https://github.com/JALBAA/promise-zy#readme",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-es2015": "^6.24.1",
     "promises-aplus-tests": "^2.1.2",
-    "uglify-js": "^3.3.21"
+    "uglify": "^0.1.5",
+    "webpack": "^3.11.0"
   }
 }
