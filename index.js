@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-18 16:40:48
+ * @Last Modified time: 2018-04-18 17:49:42
  * A simple implementation of Promise/A+
  */
 
