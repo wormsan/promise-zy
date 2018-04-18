@@ -2,7 +2,7 @@
  * @Author: zhaoye 
  * @Date: 2018-04-17 19:02:17 
  * @Last Modified by: zhaoye
- * @Last Modified time: 2018-04-18 17:49:42
+ * @Last Modified time: 2018-04-18 20:14:21
  * A simple implementation of Promise/A+
  */
 
@@ -23,13 +23,22 @@ function isThenable (x) {
         try {
             let then = x.then
             if (then && typeof then == 'function') {
-                return then
+                return {
+                    throwed: false,
+                    then,
+                }
             }
         } catch (e) {
-            return {'throwed': e}
+            return {
+                throwed: true,
+                then: e
+            }
         }
     }
-    return false
+    return {
+        throwed: false,
+        then: null,
+    }
 }
 /**
  * 报错
@@ -61,7 +70,8 @@ class Promise {
                     return __PromiseStatus
                 },
                 set (value) {
-                    if (this._decideLock == 'locked') return false // throw new Error('you are doing an unilegal set, please use _decide fn')
+                    // you are doing an unilegal set, please use _decide fn
+                    if (this._decideLock == 'locked') return false
                     // 2.1
                     /*  
                         一个Promise必须处在其中之一的状态：pending, fulfilled 或 rejected.
@@ -91,9 +101,9 @@ class Promise {
                         它不能在promise rejected前调用。
                         不能被多次调用。
                     */
+                    // the promise status cannot be set again
                     if (__statusTrigger) {
                         return false
-                        // throw new Error('the promise status cannot be set again')
                     }
                     if (__PromiseStatus == 'pending' && value != 'pending') {
                         __statusTrigger = true
@@ -115,10 +125,12 @@ class Promise {
                     return __PromiseValue
                 },
                 set (value) {
-                    if (this._decideLock == 'locked') return false //throw new Error('you are doing an unilegal set, please use _decide fn')
+                    // you are doing an unilegal set, please use _decide fn
+                    if (this._decideLock == 'locked') return false
                     // 2.1
                     if (__valueTrigger) {
-                        return false //throw new Error('the promise value cannot be set again')
+                        // the promise value cannot be set again
+                        return false
                     }
                     __valueTrigger = true
                     __PromiseValue = value
@@ -140,7 +152,7 @@ class Promise {
         }
     }
     /**
-     * promise的状态和value的变更，必须一起进行\
+     * promise的状态和value的变更，必须一起进行
      * 所以封装decide方法，并且配合一个锁，防止状态和value被decide方法之外的其他方法修改
      * @param {string} status 
      * @param {*} value 
@@ -160,7 +172,6 @@ class Promise {
         // 2.2.6 对于一个promise，它的then方法可以调用多次.
         //  当promise fulfilled后，所有onFulfilled都必须按照其注册顺序执行。
         //  当promise rejected后，所有onRejected都必须按照其注册顺序执行。
-        
         while (this._retrivers.length > 0) {
             const retriver = this._retrivers.shift()
             try {
@@ -202,10 +213,10 @@ class Promise {
      * @param {*} promise2 then函数返回的那个promise实例
      * @param {*} x 当前的promise实例的执行的结果
      */
-    _resolve (promise2, x, isY) {
-        let then = isThenable(x)
-        if (then.throwed) {
-            throw then.throwed
+    _resolve (promise2, x) {
+        let {throwed, then} = isThenable(x)
+        if (throwed) {
+            throw then
         }
         // 2.3.1 如果promise 和 x 指向相同的值, 使用 TypeError做为原因将promise拒绝
         if (promise2 == x) {
@@ -219,9 +230,9 @@ class Promise {
                 // and trigger promise2 status
                 // 为了通过测试用例，各种倒状态
                 x.then(function (x) {
-                    let then = isThenable(x)
-                    if (then.throwed) {
-                        promise2._decide('rejected', then.throwed)
+                    let {throwed, then} = isThenable(x)
+                    if (throwed) {
+                        promise2._decide('rejected', then)
                     } else if (then) {
                         try {
                             then.call(x, function (y) {
@@ -262,7 +273,7 @@ class Promise {
                     onceTrigger = true
                     // [[Resolve]] (promise, y)
                     try {
-                        this._resolve(promise2, y, 'y')
+                        this._resolve(promise2, y)
                     } catch (e) {
                         this._reject(promise2, e)
                     }
@@ -412,10 +423,10 @@ Promise.race = function (iterable) {
 // 则该对象作为Promise.resolve方法的返回值返回；否则以该值为成功状态返回promise对象。
 // *fully tested whit the suites in MDN demo
 Promise.resolve = function (x) {
-	let then = isThenable(x)
-	if (then.throwed) {
+	let {throwed, then} = isThenable(x)
+	if (throwed) {
 		return new Promise(function (resolve, reject) {
-			reject(then.throwed)
+			reject(then)
 		})
 	}
     if (x instanceof Promise) {
